@@ -36,8 +36,8 @@
 
 #include <MsTimer2.h>
 
-unsigned long MsTimer2::msecs;
-void (*MsTimer2::func)();
+unsigned long MsTimer2::msecs = 0;
+void (*MsTimer2::func)() = nullptr;
 volatile unsigned long MsTimer2::count;
 volatile bool MsTimer2::overflowing;
 volatile unsigned int MsTimer2::tcnt2;
@@ -168,6 +168,12 @@ void MsTimer2::set(unsigned long ms, void (*f)(), Print* pDebug) {
 }
 
 void MsTimer2::start() {
+  if(MsTimer2::msecs == 0) {
+    for(uint8_t ix = 0; ix < 50; ++ix) { Serial.print('#'); }
+    Serial.println(F("\nMsTimer2::start() failed, as set() not run"));
+    for(uint8_t ix = 0; ix < 50; ++ix) { Serial.print('#'); }
+    return;
+  }
 	count = 0;
 	overflowing = false;
 #if defined (__AVR_ATmega168__) || defined (__AVR_ATmega48__) || defined (__AVR_ATmega88__) || defined (__AVR_ATmega328P__) || defined (__AVR_ATmega1280__) || defined(__AVR_ATmega2560__) || defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB1286__)
@@ -211,17 +217,17 @@ void MsTimer2::_overflow() {
 		overflowing = true;
 		count = count - msecs; // subtract ms to catch missed overflows
 					// set to 0 if you don't want this.
-		(*func)();
+		if(func) { (*func)(); }
 		overflowing = false;
 	}
 }
 
 unsigned long MsTimer2::millis2() {
   unsigned long res;
-  uint8_t oldSREG = SREG;
+  uint8_t saveSREG = SREG;
   cli();
   res = myMillis;
-  SREG = oldSREG;
+  SREG = saveSREG;
   return res;
 }
 
