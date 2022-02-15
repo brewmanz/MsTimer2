@@ -9,6 +9,8 @@
 #error MsTimer2 library only works on AVR architecture
 #endif
 
+#include <BrewmanzUtes.h>
+
 namespace MsTimer2 {
 	extern unsigned long msecs;
 	extern void (*func)();
@@ -16,7 +18,7 @@ namespace MsTimer2 {
 	extern volatile bool overflowing;
 	extern volatile unsigned int tcnt2;
 
-	void set(unsigned long ms, void (*f)());
+	void set(unsigned long ms, void (*f)(), Print* pDebug = nullptr);
 	void start();
 	void stop();
 	void _overflow();
