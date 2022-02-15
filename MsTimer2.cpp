@@ -39,7 +39,6 @@
 unsigned long MsTimer2::msecs;
 void (*MsTimer2::func)();
 volatile unsigned long MsTimer2::count;
-volatile unsigned long MsTimer2::millis;
 volatile bool MsTimer2::overflowing;
 volatile unsigned int MsTimer2::tcnt2;
 #if defined(__arm__) && defined(TEENSYDUINO)
@@ -203,8 +202,9 @@ void MsTimer2::stop() {
 #endif
 }
 
+static volatile unsigned long myMillis;
 void MsTimer2::_overflow() {
-	++MsTimer2::millis;
+	++myMillis;
 	count += 1;
 
 	if (count >= msecs && !overflowing) {
@@ -214,6 +214,15 @@ void MsTimer2::_overflow() {
 		(*func)();
 		overflowing = false;
 	}
+}
+
+unsigned long MsTimer2::millis2() {
+  unsigned long res;
+  uint8_t oldSREG = SREG;
+  cli();
+  res = myMillis;
+  SREG = oldSREG;
+  return res;
 }
 
 #if defined (__AVR__)

@@ -14,7 +14,6 @@
 namespace MsTimer2 {
 	extern unsigned long msecs;
 	extern void (*func)();
-	extern volatile unsigned long millis;
 	extern volatile unsigned long count;
 	extern volatile bool overflowing;
 	extern volatile unsigned int tcnt2;
@@ -23,6 +22,7 @@ namespace MsTimer2 {
 	void start();
 	void stop();
 	void _overflow();
+ 	unsigned long millis2();
 }
 
 #endif
